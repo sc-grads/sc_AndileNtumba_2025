@@ -1,32 +1,15 @@
-name: PR Notification to Teams
-
+name: PR Approval Notification
+ 
 on:
-  pull_request:
-    types: [opened, reopened]
-
+  pull_request_review:
+    types: [submitted]
+ 
 jobs:
-  notify_teams:
+  notify-teams:
     runs-on: ubuntu-latest
     steps:
-      - name: Send notification to Teams
+      - name: Send message to Microsoft Teams
         run: |
-          curl -H "Content-Type: application/json" \
-               -d '{
-                    "text": "📢 New Pull Request: '${{ github.event.pull_request.title }}'",
-                    "sections": [
-                      {
-                        "facts": [
-                          { "name": "PR Author", "value": "${{ github.event.pull_request.user.login }}" },
-                          { "name": "Branch", "value": "${{ github.event.pull_request.head.ref }}" }
-                        ]
-                      }
-                    ]
-                  }' \
-               -X POST "https://northerndata.webhook.office.com/webhookb2/299d68d2-2047-4d7f-a9ae-e6646b646599@174c7352-9c5c-4558-b848-be140b444e7d/IncomingWebhook/cbb7093ab268413e85ccae7cdac2c2ff/a362ee48-0194-4cd3-b92b-dc922cb687d0/V2_ul3umTdhilRZL1iyhSD5EFeIFGcK7-MQzIjJg5j4241"
-
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          curl -H "Content-Type: application/json" -d '{
+            "text": "🚀 Pull Request Approved! \nRepo: '${{ github.repository }}' \nPR: '${{ github.event.pull_request.html_url }}' \nApproved by: '${{ github.actor }}'"
+          }' '${{ secrets.TEAMS_WEBHOOK_URL }}'
